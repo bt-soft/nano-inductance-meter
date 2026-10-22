@@ -71,6 +71,63 @@ avgT += 0.04 · (T − avgT)          (AVG_ALPHA)
 - A mérés minden ciklusban fut, de az LCD-t a villogás elkerülésére csak `DISPLAY_INTERVAL_MS` (800 ms)
   időközönként rajzolja újra.
 
+## Mérési tartomány
+
+A számok a névleges `C = 465 nF` párhuzamos kondenzátorra vonatkoznak. Ez elméleti és becsült, nem mért tartomány:
+a valós határokat a tekercs ohmos vesztesége (Q-ja), a komparátor és a huzalozás befolyásolja.
+
+**Gyakorlati tartomány: kb. 2 µH … 300 mH**, a rezgési frekvencia ekkor kb. 150 kHz … 400 Hz.
+
+### Az alsó határ (kis L, nagy frekvencia)
+
+- **Megszakítás-késleltetés:** minden felfutó él egy megszakítást (ISR) indít, ami kb. 4–5 µs-ig fut. A rezgés
+  periódusidejének ennél lényegesen hosszabbnak kell lennie, különben élek maradnak ki, és a jitter-ellenőrzés
+  (`maxD/minD ≤ 5/4`) a lövést eldobja. Ez kb. **150–200 kHz** felső frekvenciahatárt ad.
+- **Komparátor sávszélessége:** az MCP6004 erősítés-sávszélesség szorzata kb. 1 MHz, a slew rate kb. 0,6 V/µs,
+  így 100–200 kHz fölött a négyszögjel torzul.
+- **Időfelbontás:** 1 tick = 62,5 ns. 230 kHz-en a periódus kb. 69 tick, tehát egy tick kb. 1,5% hiba (L-ben kb. 3%).
+  Az élek közti időközök átlagolása (`sumTicks / (n−1)`) ezt javítja, de a pontosság lefelé romlik.
+- **Parazita induktivitás és kapacitás:** néhány µH alatt a bekötés, a próbapanel és a vezetékek saját induktivitása
+  már összemérhető a mérendővel.
+
+### A felső határ (nagy L, kis frekvencia)
+
+- **Időtúllépés:** a gyűjtés 10 ms-ig tart (`TIMEOUT_US`), és legalább 4 él kell (`MIN_EDGES`). Az első él a
+  letöltés után legfeljebb egy periódussal később érkezik, ezért a periódusidő legfeljebb kb. 2,5 ms lehet
+  (**kb. 400 Hz → L ≈ 0,34 H**). Ennél lassabb lecsengésből nem gyűlik össze elég él.
+- **Timer1 túlcsordulás:** a 16 bites számláló 16 MHz-en 4,096 ms alatt fordul körbe, az időközt `uint16_t`-ben
+  számoljuk. Egy periódus nem lehet hosszabb ennél (**kb. 244 Hz → L ≈ 0,78 H**). A 10 ms-os időtúllépés ennél
+  szigorúbb, ezért az dönt.
+- **Gyenge gerjesztés:** a töltőimpulzus 300 µs hosszú, 390 Ω-on át. Nagy L-nél az áram lassan nő
+  (időállandó `L/R`), ezért kevés energia kerül a körbe, és a lecsengés kicsi és gyorsan elhal.
+  Kb. 100 mH fölött ezért a mérés fokozatosan bizonytalanabb, és a jel eltűnhet a komparátor küszöbe alatt.
+- **Csillapítás:** a tekercs soros ellenállása és a veszteségei miatt a rezgés néhány periódus alatt elhalhat.
+  Rossz Q-jú (például vasmagos, nagy ohmos) tekercsnél a 4 élet sem sikerül összegyűjteni.
+
+### Induktivitás és mérési frekvencia (C = 465 nF)
+
+| L | f | T | Megjegyzés |
+|---|---|---|------------|
+| 1 µH | 233 kHz | 4,3 µs | a határ fölött, megbízhatatlan |
+| 2,2 µH | 157 kHz | 6,4 µs | határeset |
+| 4,7 µH | 108 kHz | 9,3 µs | |
+| 10 µH | 74 kHz | 13,6 µs | |
+| 47 µH | 34 kHz | 29,4 µs | a kalibráló tekercs (`L_CAL`) |
+| 100 µH | 23 kHz | 42,9 µs | |
+| 470 µH | 10,8 kHz | 93 µs | |
+| 1 mH | 7,4 kHz | 135 µs | |
+| 4,7 mH | 3,4 kHz | 294 µs | |
+| 10 mH | 2,3 kHz | 429 µs | |
+| 47 mH | 1,08 kHz | 929 µs | |
+| 100 mH | 738 Hz | 1,36 ms | gyengülő jel |
+| 470 mH | 340 Hz | 2,9 ms | a 10 ms-os időtúllépés miatt már nem mérhető megbízhatóan |
+| 1 H | 233 Hz | 4,3 ms | nem mérhető |
+
+A frekvencia kiszámítása másik kondenzátorral: `f = 1 / (2·π·√(L·C))`. A mérési tartomány a frekvenciahatárok
+(kb. 400 Hz … 150 kHz) alapján eltolható: kisebb C-nél a rezgés gyorsabb, így a nagy L-ek jobban mérhetők, a kis L-ek
+viszont kikerülnek a tartományból. Nagyobb C-nél ennek az ellenkezője igaz. Ezért van egy másik lehetséges
+`C_NOM = 82 nF` érték kikommentelve a kódban: ezzel a tartomány a nagyobb induktivitások felé tolódik.
+
 ## Kalibráció
 
 A párhuzamos kondenzátor tényleges értéke (tűrés, parazita kapacitások, komparátor bemenet) eltér a névlegestől, ezért a
