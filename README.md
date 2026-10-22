@@ -31,7 +31,7 @@ ahol `T = 1/f` a rezgés periódusideje. A C értéke ismert (kalibrálással po
 
 ## A működés pontosan
 
-### 1. Egy lövés (`measurePeriodTicks`)
+### 1. Egy mérési ciklus (`measurePeriodTicks`)
 
 1. **Töltés:** D9 magas szintre kerül, és 300 µs-ig (`PULSE_US`) kimenetként tölti az Lx-et a 390 Ω-os ellenálláson át.
 2. **Elengedés:** D9 Hi-Z állapotba kapcsol, ekkor az Lx ∥ C kör szabadon lecseng.
@@ -40,18 +40,18 @@ ahol `T = 1/f` a rezgés periódusideje. A C értéke ismert (kalibrálással po
    - az első él után elmenti az egymást követő élek közti időközt (tickben),
    - összegzi az időközöket (`sumTicks`), és követi a legkisebbet (`minD`) és a legnagyobbat (`maxD`).
 4. **Gyűjtés vége:** legfeljebb 12 élt (`MAX_EDGES`) gyűjt, vagy 10 ms (`TIMEOUT_US`) után leáll.
-5. **Várakozás:** 2 ms szünet, hogy a maradék lecsengés elhaljon a következő lövés előtt.
-6. **Érvényesség:** a lövés érvényes, ha
+5. **Várakozás:** 2 ms szünet, hogy a maradék lecsengés elhaljon a következő mérési ciklus előtt.
+6. **Érvényesség:** a mérési ciklus érvényes, ha
    - legalább 4 él volt (`MIN_EDGES`), és
    - `maxD / minD ≤ 5/4` (`MAX_JITTER_NUM/DEN`), vagyis nincs kihagyott vagy zajos él.
 
-   Érvényes lövésnél az eredmény: `sumTicks / (élek száma − 1)`, azaz az átlagos periódusidő tickben.
+   Érvényes mérési ciklusnál az eredmény: `sumTicks / (élek száma − 1)`, azaz az átlagos periódusidő tickben.
    Érvénytelennél 0.
 
 ### 2. Egy mérés (`measurePeriod`)
 
-- 5 lövést végez (`SHOTS`), és az érvényesek átlagát veszi.
-- Legalább 3 érvényes lövés kell (`MIN_VALID_SHOTS`), különben a mérés sikertelen (0).
+- 5 mérési ciklust végez (`MEASUREMENT_CYCLES`), és az érvényesek átlagát veszi.
+- Legalább 3 érvényes mérési ciklus kell (`MIN_VALID_CYCLES`), különben a mérés sikertelen (0).
 - Az átlagot elosztja 16 MHz-cel, így másodpercben kapja a periódusidőt (`T`).
 
 ### 3. Simítás (`smoothPeriod`)
@@ -88,7 +88,7 @@ Ez elméleti és becsült, nem mért tartomány: a valós határokat a tekercs o
 
 - **Megszakítás-késleltetés:** minden felfutó él egy megszakítást (ISR) indít, ami kb. 4–5 µs-ig fut. A rezgés
   periódusidejének ennél lényegesen hosszabbnak kell lennie, különben élek maradnak ki, és a jitter-ellenőrzés
-  (`maxD/minD ≤ 5/4`) a lövést eldobja. Ez kb. **150–200 kHz** felső frekvenciahatárt ad.
+  (`maxD/minD ≤ 5/4`) a mérési ciklust eldobja. Ez kb. **150–200 kHz** felső frekvenciahatárt ad.
 - **Komparátor sávszélessége:** az MCP6004 erősítés-sávszélesség szorzata kb. 1 MHz, a slew rate kb. 0,6 V/µs,
   így 100–200 kHz fölött a négyszögjel torzul.
 - **Időfelbontás:** 1 tick = 62,5 ns. 230 kHz-en a periódus kb. 69 tick, tehát egy tick kb. 1,5% hiba (L-ben kb. 3%).
@@ -181,11 +181,11 @@ kalibrálj.
 | Konstans | Hatás | Alapérték |
 |----------|-------|-----------|
 | `PULSE_US` | töltőimpulzus hossza (µs) | 300 |
-| `MAX_EDGES` | lövésenként gyűjtött élek száma | 12 |
-| `MIN_EDGES` | érvényes lövéshez szükséges élek | 4 |
-| `TIMEOUT_US` | lövésenkénti maximális mérési idő (µs) | 10000 |
-| `SHOTS` | lövések száma egy mérésben | 5 |
-| `MIN_VALID_SHOTS` | érvényes mérés minimum lövésszáma | 3 |
+| `MAX_EDGES` | ciklusonként gyűjtött élek száma | 12 |
+| `MIN_EDGES` | érvényes mérési ciklushoz szükséges élek | 4 |
+| `TIMEOUT_US` | ciklusonkénti maximális mérési idő (µs) | 10000 |
+| `MEASUREMENT_CYCLES` | mérési ciklusok száma egy mérésben | 5 |
+| `MIN_VALID_CYCLES` | érvényes méréshez szükséges ciklusok száma | 3 |
 | `AVG_ALPHA` | mozgóátlag súlya (kisebb = simább) | 0,04 |
 | `AVG_RESET_RATIO` | ekkora relatív ugrásnál újraindul az átlag | 0,05 |
 | `DISPLAY_INTERVAL_MS` | LCD frissítési időköz (ms) | 800 |

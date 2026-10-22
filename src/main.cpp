@@ -36,11 +36,11 @@ const uint16_t EE_MAGIC = 0xC1A6; // a kalibrációs adat érvényességét jelz
 // ---------------------------------------------------------------------------
 const double F_CPU_D = 16.0e6;           // CPU órajel (Hz), a Timer1 ennyivel számol
 const uint16_t PULSE_US = 300;           // töltőimpulzus hossza (µs)
-const uint8_t MAX_EDGES = 12;            // ennyi felfutó élt gyűjtünk lövésenként
-const uint8_t MIN_EDGES = 4;             // ennyi él kell az érvényes lövéshez
-const unsigned long TIMEOUT_US = 10000;  // max. mérési idő lövésenként (µs)
-const uint8_t SHOTS = 5;                 // ennyi lövést átlagolunk egy méréshez
-const uint8_t MIN_VALID_SHOTS = 3;       // ennyi érvényes lövés kell egy méréshez
+const uint8_t MAX_EDGES = 12;                    // ennyi felfutó élt gyűjtünk ciklusonként
+const uint8_t MIN_EDGES = 4;                     // ennyi él kell az érvényes mérési ciklushoz
+const unsigned long TIMEOUT_US = 10000;          // max. mérési idő ciklusonként (µs)
+const uint8_t MEASUREMENT_CYCLES = 5;            // ennyi ciklust átlagolunk egy méréshez
+const uint8_t MIN_VALID_CYCLES = 3;              // ennyi érvényes ciklus kell egy méréshez
 
 // Az időközök max/min aránya ennél nagyobb nem lehet (MAX_JITTER_NUM/DEN = 5/4)
 const uint8_t MAX_JITTER_NUM = 5;
@@ -59,8 +59,8 @@ const double AVG_RESET_RATIO = 0.05;           // ekkora relatív ugrásnál új
 volatile uint16_t lastCap, minD, maxD;
 volatile uint32_t sumTicks;
 volatile uint8_t nEdges;
-uint8_t dbgEdges;       // utolsó lövés éleinek száma
-uint16_t dbgMin, dbgMax; // utolsó lövés legkisebb/legnagyobb időköze (órajel)
+uint8_t dbgEdges;        // utolsó mérési ciklus éleinek száma
+uint16_t dbgMin, dbgMax; // utolsó mérési ciklus legkisebb/legnagyobb időköze (órajel)
 
 // ---------------------------------------------------------------------------
 // Mérés
@@ -157,20 +157,20 @@ double measurePeriodTicks() {
 
 /**
  * Egy lecsengés periódusidő mérése másodpercben
- * Több lövést mér és átlagol; 0-t ad, ha túl kevés az érvényes lövés
+ * Több mérési ciklust átlagol; 0-t ad, ha túl kevés az érvényes ciklus
  */
 double measurePeriod() {
     double sum = 0;
     uint8_t ok = 0;
 
-    for (uint8_t i = 0; i < SHOTS; i++) {
+    for (uint8_t i = 0; i < MEASUREMENT_CYCLES; i++) {
         const double t = measurePeriodTicks();
         if (t > 0) {
             sum += t;
             ok++;
         }
     }
-    if (ok < MIN_VALID_SHOTS) {
+    if (ok < MIN_VALID_CYCLES) {
         return 0;
     }
     return sum / ok / F_CPU_D; // átváltás másodpercre
