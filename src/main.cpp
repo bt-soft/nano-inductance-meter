@@ -8,38 +8,63 @@
 #include <EEPROM.h>
 
 #include <Adafruit_GFX.h>
-
-#include <Fonts/Org_01.h>
-#include <Fonts/Picopixel.h>
-
 #include <Adafruit_PCD8544.h>
 
-const uint8_t PIN_BTN = 2; // kalibráló gomb (GND-re húz)
-// D9 = PB1: pulzus kimenet, D8 = ICP1: komparátor kimenet
+// ---------------------------------------------------------------------------
+// Lábkiosztás
+// ---------------------------------------------------------------------------
+// D9 = PB1: töltőimpulzus kimenet, D8 = ICP1: komparátor kimenet
+const uint8_t PIN_BTN = 2;      // kalibráló gomb (GND-re húz)
+const uint8_t PIN_ICP = 8;      // komparátor kimenet (Timer1 input capture)
+const uint8_t PULSE_BIT = PB1;  // D9 a PORTB/DDRB regiszterekben
 
 // Nokia 5110: SCLK, DIN, D/C, CS, RST
 Adafruit_PCD8544 lcd(3, 4, 5, 6, 7);
 
-// const double C_NOM = 82e-9;   // a párhuzamos kondenzátor névleges értéke
-const double C_NOM = 465e-9;      // a párhuzamos kondenzátor névleges értéke
+// ---------------------------------------------------------------------------
+// Kalibráció és EEPROM
+// ---------------------------------------------------------------------------
+// const double C_NOM = 82e-9;    // másik lehetséges párhuzamos kondenzátor
+const double C_NOM = 465e-9;      // a párhuzamos kondenzátor névleges értéke (F)
 const double L_CAL = 47e-6;       // a kalibráláshoz használt ismert induktivitás (H)
-double Cx = C_NOM;                // kalibrálással felülíródik (EEPROM)
+double Cx = C_NOM;                // effektív kapacitás, kalibrálással felülíródik (EEPROM)
 const int EE_ADDR = 0;            // EEPROM kezdőcím a kalibrációs adatokhoz
-const uint16_t EE_MAGIC = 0xC1A6; // EEPROM-ban a kalibrációs adat érvényességét jelző érték
-const double F_CPU_D = 16.0e6;    // CPU órajel Hz-ben
+const uint16_t EE_MAGIC = 0xC1A6; // a kalibrációs adat érvényességét jelző érték
 
-const uint16_t PULSE_US = 300;                 // töltőimpulzus hossza
-const uint8_t MAX_EDGES = 12;                  // ennyi felfutó élt gyűjtünk
-const uint8_t MIN_EDGES = 4;                   // ennyi él kell az érvényes méréshez
-const unsigned long TIMEOUT_US = 10000;        // max. mérési idő lövésenként
-const uint8_t SHOTS = 5;                       // ennyi próbálkozás a periódusidő mérésére
-const unsigned long DISPLAY_INTERVAL_MS = 800; // LCD frissítési intervallum millisc-ben
+// ---------------------------------------------------------------------------
+// Mérési paraméterek
+// ---------------------------------------------------------------------------
+const double F_CPU_D = 16.0e6;           // CPU órajel (Hz), a Timer1 ennyivel számol
+const uint16_t PULSE_US = 300;           // töltőimpulzus hossza (µs)
+const uint8_t MAX_EDGES = 12;            // ennyi felfutó élt gyűjtünk lövésenként
+const uint8_t MIN_EDGES = 4;             // ennyi él kell az érvényes lövéshez
+const unsigned long TIMEOUT_US = 10000;  // max. mérési idő lövésenként (µs)
+const uint8_t SHOTS = 5;                 // ennyi lövést átlagolunk egy méréshez
+const uint8_t MIN_VALID_SHOTS = 3;       // ennyi érvényes lövés kell egy méréshez
 
+// Az időközök max/min aránya ennél nagyobb nem lehet (MAX_JITTER_NUM/DEN = 5/4)
+const uint8_t MAX_JITTER_NUM = 5;
+const uint8_t MAX_JITTER_DEN = 4;
+
+// ---------------------------------------------------------------------------
+// Kijelzés és simítás
+// ---------------------------------------------------------------------------
+const unsigned long DISPLAY_INTERVAL_MS = 800; // LCD frissítési intervallum (ms)
+const double AVG_ALPHA = 0.04;                 // mozgóátlag súlya (kisebb = simább)
+const double AVG_RESET_RATIO = 0.05;           // ekkora relatív ugrásnál újraindul az átlag
+
+// ---------------------------------------------------------------------------
+// Megszakításból írt adatok és debug információk
+// ---------------------------------------------------------------------------
 volatile uint16_t lastCap, minD, maxD;
 volatile uint32_t sumTicks;
 volatile uint8_t nEdges;
-uint8_t dbgEdges;
-uint16_t dbgMin, dbgMax;
+uint8_t dbgEdges;       // utolsó lövés éleinek száma
+uint16_t dbgMin, dbgMax; // utolsó lövés legkisebb/legnagyobb időköze (órajel)
+
+// ---------------------------------------------------------------------------
+// Mérés
+// ---------------------------------------------------------------------------
 
 /**
  * Timer1 input capture megszakítás kezelője
@@ -55,10 +80,12 @@ ISR(TIMER1_CAPT_vect) {
     if (nEdges > 0) {
         uint16_t d = c - lastCap;
         sumTicks += d;
-        if (d < minD)
+        if (d < minD) {
             minD = d;
-        if (d > maxD)
+        }
+        if (d > maxD) {
             maxD = d;
+        }
     }
     lastCap = c;
     nEdges++;
@@ -78,16 +105,15 @@ void timerInit() {
  * 0-t ad, ha nincs elég él
  */
 double measurePeriodTicks() {
-    PORTB |= _BV(PB1); // D9 magas, 390 ohmon át tölti az Lx-et
-    DDRB |= _BV(PB1);  // D9 kimenet, töltőimpulzus indítása
-
-    // várakozás a töltőimpulzus idejére
+    // töltőimpulzus: D9 magas, 390 ohmon át tölti az Lx-et
+    PORTB |= _BV(PULSE_BIT);
+    DDRB |= _BV(PULSE_BIT);
     delayMicroseconds(PULSE_US);
 
-    // töltőimpulzus vége, most kezdjük a mérést
+    // töltőimpulzus vége (D9 Hi-Z), most kezdjük a mérést
     noInterrupts();
-    DDRB &= ~_BV(PB1);  // Hi-Z
-    PORTB &= ~_BV(PB1); // D9 Hi-Z, töltőimpulzus vége
+    DDRB &= ~_BV(PULSE_BIT);
+    PORTB &= ~_BV(PULSE_BIT);
 
     nEdges = 0;
     sumTicks = 0;
@@ -97,69 +123,100 @@ double measurePeriodTicks() {
     TIMSK1 = _BV(ICIE1); // input capture interrupt engedélyezése
     interrupts();
 
-    unsigned long t0 = micros();
+    // várakozás az élekre vagy az időtúllépésre
+    const unsigned long t0 = micros();
     while (micros() - t0 < TIMEOUT_US && nEdges < MAX_EDGES) {
     }
 
     TIMSK1 = 0; // input capture interrupt letiltása
-    noInterrupts();
 
-    uint8_t n = nEdges;
-    uint32_t s = sumTicks;
-    uint16_t mn = minD, mx = maxD;
+    // konzisztens pillanatkép a megszakításban írt adatokról
+    noInterrupts();
+    const uint8_t n = nEdges;
+    const uint32_t s = sumTicks;
+    const uint16_t mn = minD;
+    const uint16_t mx = maxD;
     interrupts();
 
     delay(2); // a maradék lecsengés elhalása
+
+    // debug adatok az LCD-s hibakijelzéshez
     dbgEdges = n;
     dbgMin = mn;
     dbgMax = mx;
-    // debug adatok kiírása az LCD-re vagy soros monitorra (opcionális)
+
     if (n < MIN_EDGES) {
         return 0;
     }
-    if ((uint32_t)mx * 4 > (uint32_t)mn * 5) {
-        return 0; // kihagyott/zajos él
+    // kihagyott vagy zajos él: az időközök túl eltérőek
+    if ((uint32_t)mx * MAX_JITTER_DEN > (uint32_t)mn * MAX_JITTER_NUM) {
+        return 0;
     }
     return (double)s / (n - 1);
 }
 
 /**
  * Egy lecsengés periódusidő mérése másodpercben
- * Többször próbálkozik, és átlagot számol
+ * Több lövést mér és átlagol; 0-t ad, ha túl kevés az érvényes lövés
  */
 double measurePeriod() {
     double sum = 0;
     uint8_t ok = 0;
 
-    // Többször próbálkozunk a periódusidő mérésével és átlagot számolunk
     for (uint8_t i = 0; i < SHOTS; i++) {
-        double t = measurePeriodTicks();
+        const double t = measurePeriodTicks();
         if (t > 0) {
             sum += t;
             ok++;
         }
     }
-    // Ha túl kevés sikeres mérés van, hibát jelezünk
-    if (ok < 3) {
+    if (ok < MIN_VALID_SHOTS) {
         return 0;
     }
-    // Átlagoljuk a sikeres méréseket és átváltjuk másodpercre
-    return sum / ok / F_CPU_D; // másodperc
+    return sum / ok / F_CPU_D; // átváltás másodpercre
 }
+
+/**
+ * Induktivitás számítása a periódusidőből: L = T^2 / (4*pi^2*C)
+ */
+double inductanceFromPeriod(double T, double C) {
+    return T * T / (4.0 * PI * PI * C);
+}
+
+/**
+ * Mozgóátlag a periódusidőre
+ * Nagy ugrásnál (másik tekercs) vagy hibánál újraindul
+ */
+double smoothPeriod(double T) {
+    static double avgT = 0;
+    if (T == 0) {
+        avgT = 0;
+    } else if (avgT == 0 || fabs(T - avgT) > AVG_RESET_RATIO * avgT) {
+        avgT = T;
+    } else {
+        avgT += AVG_ALPHA * (T - avgT);
+    }
+    return avgT;
+}
+
+// ---------------------------------------------------------------------------
+// Kalibráció
+// ---------------------------------------------------------------------------
 
 /**
  * Kalibrációs adatok betöltése az EEPROM-ból
  */
 void loadCal() {
-    uint16_t m;
+    uint16_t magic;
     float c;
-    EEPROM.get(EE_ADDR, m);
-    if (m != EE_MAGIC) {
+    EEPROM.get(EE_ADDR, magic);
+    if (magic != EE_MAGIC) {
         return;
     }
-    EEPROM.get(EE_ADDR + 2, c); // kalibrációs konstans betöltése
+    EEPROM.get(EE_ADDR + 2, c);
+    // csak hihető érték esetén írjuk felül a névlegeset
     if (c > 0.5 * C_NOM && c < 2.0 * C_NOM) {
-        Cx = c; // csak érvényes érték esetén állítjuk be
+        Cx = c;
     }
 }
 
@@ -177,8 +234,7 @@ void calibrate() {
     lcd.display();
     delay(3000);
 
-    // Periódusidő mérése
-    double T = measurePeriod();
+    const double T = measurePeriod();
 
     lcd.clearDisplay();
     lcd.setCursor(0, 0);
@@ -199,25 +255,95 @@ void calibrate() {
     delay(2000);
 }
 
+// ---------------------------------------------------------------------------
+// Kijelzés
+// ---------------------------------------------------------------------------
+
+/**
+ * Induktivitás kiírása: 1 mH felett mH-ban, alatta µH-ban
+ * (az LCD ékezet nélküli "uH" feliratot használ)
+ */
+void printInductance(double L) {
+    lcd.setTextSize(2);
+    if (L >= 1e-3) {
+        lcd.print(L * 1e3, L >= 10e-3 ? 1 : 2);
+        lcd.println("mH");
+    } else {
+        lcd.print(L * 1e6, L < 10e-6 ? 2 : (L < 100e-6 ? 1 : 0));
+        lcd.println("uH");
+    }
+    lcd.setTextSize(1);
+}
+
+/**
+ * Frekvencia kiírása: 1 kHz felett kHz-ben, alatta Hz-ben
+ */
+void printFrequency(double f) {
+    lcd.print("f=");
+    if (f >= 1000) {
+        lcd.print(f / 1e3, f >= 100e3 ? 1 : 2);
+        lcd.println(" kHz");
+    } else {
+        lcd.print(f, 0);
+        lcd.println(" Hz");
+    }
+}
+
+/**
+ * Hibakijelzés: nincs érvényes lecsengés, debug adatokkal
+ */
+void printNoSignal() {
+    lcd.setTextSize(2);
+    lcd.println("---");
+    lcd.setTextSize(1);
+    lcd.println("Nincs lecsengo jel");
+    lcd.print("el:"); // élek száma
+    lcd.print(dbgEdges);
+    lcd.print(" T:"); // legkisebb és legnagyobb időköz
+    lcd.print(dbgMin);
+    lcd.print("-");
+    lcd.println(dbgMax);
+}
+
+/**
+ * A teljes mérési képernyő kirajzolása
+ */
+void drawScreen(double T) {
+    lcd.clearDisplay();
+    lcd.setCursor(0, 0);
+    lcd.println("L-meter");
+
+    if (T == 0) {
+        printNoSignal();
+    } else {
+        printInductance(inductanceFromPeriod(T, Cx));
+        printFrequency(1.0 / T);
+    }
+    lcd.display();
+}
+
+// ---------------------------------------------------------------------------
+// Arduino belépési pontok
+// ---------------------------------------------------------------------------
+
 /**
  * Arduino beállítási függvény
  * Inicializálja a lábakat, LCD-t, timert és betölti a kalibrációs adatokat
  */
 void setup() {
-    // Kalibráció button pin beállítása
     pinMode(PIN_BTN, INPUT_PULLUP);
-    pinMode(8, INPUT);  // 8 láb bemenetként a komparátor jel fogadására
-    DDRB &= ~_BV(PB1);  // PB1 (D9) bemenetként
-    PORTB &= ~_BV(PB1); // PB1 (D9) pull-up letiltása
+    pinMode(PIN_ICP, INPUT);       // komparátor jel fogadása
+    DDRB &= ~_BV(PULSE_BIT);       // D9 bemenet (Hi-Z)
+    PORTB &= ~_BV(PULSE_BIT);      // D9 pull-up letiltása
 
-    // LCD inicializálása
     lcd.begin();
     lcd.setContrast(30);
     lcd.setTextSize(1);
     lcd.setTextColor(BLACK);
     lcd.setRotation(2); // LCD elforgatása 180 fokkal
-    timerInit();        // Timer inicializálása
-    loadCal();          // Kalibrációs adatok betöltése
+
+    timerInit();
+    loadCal();
 }
 
 /**
@@ -225,26 +351,14 @@ void setup() {
  * Ellenőrzi a kalibrációs gombot, méri a periódusidőt és frissíti az LCD-t
  */
 void loop() {
-
-    // Kalibrációs gomb ellenőrzése
+    // kalibrációs gomb ellenőrzése
     if (digitalRead(PIN_BTN) == LOW) {
         calibrate();
     }
 
-    //
-    double T = measurePeriod();
+    const double T = smoothPeriod(measurePeriod());
 
-    // Mozgóátlag: nagy ugrásnál (másik tekercs) újraindul
-    static double avgT = 0;
-    if (T == 0) {
-        avgT = 0;
-    } else if (avgT == 0 || fabs(T - avgT) > 0.05 * avgT) {
-        avgT = T;
-    } else {
-        avgT += 0.04 * (T - avgT);
-    }
-    T = avgT;
-
+    // az LCD-t csak ritkábban frissítjük, hogy ne villogjon
     static unsigned long lastDisplayUpdate = 0;
     const unsigned long now = millis();
     if (now - lastDisplayUpdate < DISPLAY_INTERVAL_MS) {
@@ -252,46 +366,5 @@ void loop() {
     }
     lastDisplayUpdate = now;
 
-    lcd.clearDisplay();
-    lcd.setCursor(0, 0);
-    lcd.println("L-meter");
-    if (T == 0) {
-        lcd.setTextSize(2);
-        lcd.println("---");
-        lcd.setTextSize(1);
-        lcd.println("Nincs lecsengo jel");
-        lcd.print("el:"); // élek száma
-        lcd.print(dbgEdges);
-        lcd.print(" T:");  // periódusidő
-        lcd.print(dbgMin); // minimum periódusidő
-        lcd.print("-");
-        lcd.println(dbgMax); // maximum periódusidő
-    } else {
-        double L = T * T / (4.0 * PI * PI * Cx); // induktancia számítása
-        lcd.setTextSize(2);
-
-        // Ha az induktancia nagyobb vagy egyenlő 1 mH-nál, akkor mH-ban jelenítjük meg
-        if (L >= 1e-3) {
-            lcd.print(L * 1e3, L >= 10e-3 ? 1 : 2);
-            lcd.println("mH");
-        } else { // Ha az induktancia kisebb 1 mH-nál, akkor uH-ban jelenítjük meg
-            lcd.print(L * 1e6, L < 10e-6 ? 2 : (L < 100e-6 ? 1 : 0));
-            lcd.println("uH");
-        }
-
-        // Frekvencia kiírása
-        lcd.setTextSize(1);
-        double f = 1.0 / T;
-        lcd.print("f=");
-
-        // Ha a frekvencia nagyobb vagy egyenlő 1000 Hz-nél, akkor kHz-ban jelenítjük meg
-        if (f >= 1000) {
-            lcd.print(f / 1e3, f >= 100e3 ? 1 : 2);
-            lcd.println(" kHz");
-        } else {
-            lcd.print(f, 0);
-            lcd.println(" Hz");
-        }
-    }
-    lcd.display();
+    drawScreen(T);
 }
