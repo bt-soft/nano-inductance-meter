@@ -2,6 +2,10 @@
 
 Induktivitásmérő **lecsengés (ringing) méréssel**: Arduino Nano + MCP6004 komparátor + Nokia 5110 LCD. A kapcsolási rajz: [schematic.png](./schematic.png).
 
+
+![A kütyü próbapanelon](/breadboard.jpg)
+
+
 ## A mérés elve
 
 Az ismeretlen tekercs (Lx) egy ismert (pl.: arra alkalmas multiméterrel kimért) kondenzátorral (C) párhuzamos rezgőkört alkot. Ha a kört egy rövid impulzussal
