@@ -132,7 +132,7 @@ viszont kikerülnek a tartományból. Nagyobb C-nél ennek az ellenkezője igaz.
 
 A párhuzamos kondenzátor tényleges értéke (tűrés, parazita kapacitások, komparátor bemenet) eltér a névlegestől, ezért a
 mérés pontossága az effektív `Cx` kalibrálásával javítható. Ehhez egy **ismert induktivitású** tekercs kell
-(`L_CAL`, alapértelmezetten **47 µH**).
+(`L_CAL`, alapértelmezetten **47 µH**, ilyet sikerült vennem, elhiszem hogy ekkora az értéke...).
 
 ### Lépések
 
