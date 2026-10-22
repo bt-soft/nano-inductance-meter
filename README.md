@@ -26,6 +26,9 @@ ahol `T = 1/f` a rezgés periódusideje. A C értéke ismert (kalibrálással po
 | D2 | kalibráló gomb (belső felhúzással, a gomb GND-re húz) |
 | D3, D4, D5, D6, D7 | Nokia 5110: SCLK, DIN, D/C, CS, RST |
 
+
+![Kacsolási rajz](/schematics.png)
+
 ## A működés pontosan
 
 ### 1. Egy lövés (`measurePeriodTicks`)
