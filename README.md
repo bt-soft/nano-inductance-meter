@@ -1,6 +1,6 @@
 # nano-inductance-meter
 
-Induktivitásmérő **lecsengés (ringing) méréssel**: Arduino Nano + MCP6004 komparátor + Nokia 5110 LCD. A kapcsolási rajz: [schematic.png](./schematic.png).
+Induktivitásmérő **lecsengés (ringing) méréssel**: Arduino Nano + MCP6004 komparátor + Nokia 5110 LCD. 
 
 
 ![A kütyü próbapanelon](/breadboard.jpg)
