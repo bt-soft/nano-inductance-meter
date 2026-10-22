@@ -9,7 +9,6 @@
 
 #include <Adafruit_GFX.h>
 
-#include <Fonts/FreeSerifBold18pt7b.h>
 #include <Fonts/Org_01.h>
 #include <Fonts/Picopixel.h>
 
@@ -29,11 +28,12 @@ const int EE_ADDR = 0;            // EEPROM kezdőcím a kalibrációs adatokhoz
 const uint16_t EE_MAGIC = 0xC1A6; // EEPROM-ban a kalibrációs adat érvényességét jelző érték
 const double F_CPU_D = 16.0e6;    // CPU órajel Hz-ben
 
-const uint16_t PULSE_US = 300;          // töltőimpulzus hossza
-const uint8_t MAX_EDGES = 12;           // ennyi felfutó élt gyűjtünk
-const uint8_t MIN_EDGES = 4;            // ennyi él kell az érvényes méréshez
-const unsigned long TIMEOUT_US = 10000; // max. mérési idő lövésenként
-const uint8_t SHOTS = 5;                // ennyi próbálkozás a periódusidő mérésére
+const uint16_t PULSE_US = 300;                 // töltőimpulzus hossza
+const uint8_t MAX_EDGES = 12;                  // ennyi felfutó élt gyűjtünk
+const uint8_t MIN_EDGES = 4;                   // ennyi él kell az érvényes méréshez
+const unsigned long TIMEOUT_US = 10000;        // max. mérési idő lövésenként
+const uint8_t SHOTS = 5;                       // ennyi próbálkozás a periódusidő mérésére
+const unsigned long DISPLAY_INTERVAL_MS = 800; // LCD frissítési intervallum millisc-ben
 
 volatile uint16_t lastCap, minD, maxD;
 volatile uint32_t sumTicks;
@@ -114,10 +114,12 @@ double measurePeriodTicks() {
     dbgMin = mn;
     dbgMax = mx;
     // debug adatok kiírása az LCD-re vagy soros monitorra (opcionális)
-    if (n < MIN_EDGES)
+    if (n < MIN_EDGES) {
         return 0;
-    if ((uint32_t)mx * 4 > (uint32_t)mn * 5)
+    }
+    if ((uint32_t)mx * 4 > (uint32_t)mn * 5) {
         return 0; // kihagyott/zajos él
+    }
     return (double)s / (n - 1);
 }
 
@@ -239,9 +241,17 @@ void loop() {
     } else if (avgT == 0 || fabs(T - avgT) > 0.05 * avgT) {
         avgT = T;
     } else {
-        avgT += 0.15 * (T - avgT);
+        avgT += 0.04 * (T - avgT);
     }
     T = avgT;
+
+    static unsigned long lastDisplayUpdate = 0;
+    const unsigned long now = millis();
+    if (now - lastDisplayUpdate < DISPLAY_INTERVAL_MS) {
+        return;
+    }
+    lastDisplayUpdate = now;
+
     lcd.clearDisplay();
     lcd.setCursor(0, 0);
     lcd.println("L-meter");
