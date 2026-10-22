@@ -1,7 +1,6 @@
 # nano-inductance-meter
 
-Induktivitásmérő **lecsengés (ringing) méréssel**: Arduino Nano + MCP6004 komparátor + Nokia 5110 LCD.
-A kapcsolási rajz: [schematic.png](./schematic.png).
+Induktivitásmérő **lecsengés (ringing) méréssel**: Arduino Nano + MCP6004 komparátor + Nokia 5110 LCD. A kapcsolási rajz: [schematic.png](./schematic.png).
 
 ## A mérés elve
 
@@ -18,7 +17,7 @@ ahol `T = 1/f` a rezgés periódusideje. A C értéke ismert (kalibrálással po
 
 | Láb | Funkció |
 |-----|---------|
-| D9 (PB1) | töltőimpulzus kimenet, 390 Ω-on át az Lx-hez; a másik vég VREF-en van. Mérés közben Hi-Z. |
+| D9 (PB1) | töltőimpulzus kimenet, 390 Ω-on át az Lx-hez; a másik vég VREF-en van. Mérés  közben Hi-Z. |
 | D8 (ICP1) | az MCP6004 „A” komparátorának kimenete (négyszögjel) → Timer1 input capture |
 | D2 | kalibráló gomb (belső felhúzással, a gomb GND-re húz) |
 | D3, D4, D5, D6, D7 | Nokia 5110: SCLK, DIN, D/C, CS, RST |
@@ -73,8 +72,8 @@ avgT += 0.04 · (T − avgT)          (AVG_ALPHA)
 
 ## Mérési tartomány
 
-A számok a névleges `C = 465 nF` (multiméterrel kimért) párhuzamos kondenzátorra vonatkoznak. Ez elméleti és becsült, nem mért tartomány:
-a valós határokat a tekercs ohmos vesztesége (Q-ja), a komparátor és a huzalozás befolyásolja.
+A számok a névleges `C = 465 nF` (multiméterrel kimért) párhuzamos kondenzátorra vonatkoznak. 
+Ez elméleti és becsült, nem mért tartomány: a valós határokat a tekercs ohmos vesztesége (Q-ja), a komparátor és a huzalozás befolyásolja.
 
 **Gyakorlati tartomány: kb. 2 µH … 300 mH**, a rezgési frekvencia ekkor kb. 150 kHz … 400 Hz.
 
@@ -138,16 +137,15 @@ mérés pontossága az effektív `Cx` kalibrálásával javítható. Ehhez egy *
 
 1. Csatlakoztasd az ismert (`L_CAL` értékű) tekercset a mérőpontokra.
 2. Nyomd meg a kalibráló gombot (D2). A kijelzőn megjelenik: `Kalibralas / Kapcsold az / 47.0 uH-t`.
-3. A kijelzés után 3 másodpercet vár, hogy elengedhesd a gombot és a tekercs a helyén legyen. **Tartsd
-   a gombot csak röviden:** ha a mérési ciklus végén még lenyomva van, a kalibráció újraindul.
+3. A kijelzés után 3 másodpercet vár, hogy elengedhesd a gombot és a tekercs a helyén legyen. 
+   **A gombot csak röviden nyomd:** ha a mérési ciklus végén még lenyomva van, a kalibráció újraindul.
 4. A készülék elvégzi a mérést (`measurePeriod`), majd kiszámolja az effektív kapacitást:
 
    ```
    Cx = T² / (4·π²·L_CAL)
    ```
 
-5. Sikeres mérésnél kiírja `Kesz` és a `C=… nF` értéket, és **EEPROM-ba menti**. Sikertelen mérésnél (`Kal. hiba!`,
-   `el:` az élek száma) a korábbi érték marad.
+5. Sikeres mérésnél kiírja `Kesz` és a `C=… nF` értéket, és **EEPROM-ba menti**. Sikertelen mérésnél (`Kal. hiba!`, `el:` az élek száma) a korábbi érték marad.
 6. 2 másodperc után visszatér a normál mérésre.
 
 ### Tárolás az EEPROM-ban
@@ -157,8 +155,7 @@ mérés pontossága az effektív `Cx` kalibrálásával javítható. Ehhez egy *
 | 0 | 2 bájt | `EE_MAGIC` = `0xC1A6` (az adat érvényességét jelzi) |
 | 2 | 4 bájt | `Cx` (float, farad) |
 
-Indításkor (`loadCal`) az érték csak akkor kerül felhasználásra, ha a magic érték egyezik, és `Cx` a névleges
-`C_NOM` 0,5–2-szerese között van. Ha nincs érvényes kalibráció, a névleges `C_NOM` (465 nF) az alapértelmezett érték.
+Indításkor (`loadCal`) az érték csak akkor kerül felhasználásra, ha a magic érték egyezik, és `Cx` a névleges `C_NOM` 0,5–2-szerese között van. Ha nincs érvényes kalibráció, a névleges `C_NOM` (465 nF) az alapértelmezett érték.
 
 ### Beállítandó konstansok
 
