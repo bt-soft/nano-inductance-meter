@@ -2988,15 +2988,35 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "Schmitt-trigger"
+		(exclude_from_sim no)
+		(at 161.29 48.006 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "445c5c47-6c9f-4592-b67e-c3c8a2f9490b")
+	)
 	(text "Vcc/2 (Vref)"
 		(exclude_from_sim no)
-		(at 118.364 71.374 0)
+		(at 118.872 96.012 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 		)
 		(uuid "5ac4ecba-cfe4-459c-885b-bee38e38299b")
+	)
+	(text "Erősítő ~11x\n(~158Hz-től)"
+		(exclude_from_sim no)
+		(at 126.746 53.086 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c0da1086-c607-448d-ade0-7c84ba7a27d6")
 	)
 	(junction
 		(at 167.64 80.01)
@@ -4163,7 +4183,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005baf828c")
-		(property "Reference" "J6"
+		(property "Reference" "J1"
 			(at 182.88 96.52 0)
 			(effects
 				(font
@@ -4234,7 +4254,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "J6")
+					(reference "J1")
 					(unit 1)
 				)
 			)
@@ -4249,7 +4269,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb0924f")
-		(property "Reference" "#PWR0131"
+		(property "Reference" "#PWR011"
 			(at 175.26 104.14 0)
 			(effects
 				(font
@@ -4298,7 +4318,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR0131")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -4313,7 +4333,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb0c1d5")
-		(property "Reference" "R22"
+		(property "Reference" "R13"
 			(at 166.37 91.44 90)
 			(effects
 				(font
@@ -4366,7 +4386,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R22")
+					(reference "R13")
 					(unit 1)
 				)
 			)
@@ -4381,7 +4401,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb0f332")
-		(property "Reference" "JP2"
+		(property "Reference" "JP1"
 			(at 148.1328 86.4616 90)
 			(effects
 				(font
@@ -4437,7 +4457,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "JP2")
+					(reference "JP1")
 					(unit 1)
 				)
 			)
@@ -4452,7 +4472,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb1bf54")
-		(property "Reference" "#PWR0132"
+		(property "Reference" "#PWR09"
 			(at 147.32 95.25 0)
 			(effects
 				(font
@@ -4502,7 +4522,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR0132")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -4517,7 +4537,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb1bfdd")
-		(property "Reference" "#PWR0133"
+		(property "Reference" "#PWR08"
 			(at 146.05 81.28 0)
 			(effects
 				(font
@@ -4567,7 +4587,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR0133")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -4582,7 +4602,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb24d51")
-		(property "Reference" "R17"
+		(property "Reference" "R8"
 			(at 186.69 74.93 90)
 			(effects
 				(font
@@ -4635,7 +4655,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R17")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -4650,7 +4670,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb24eeb")
-		(property "Reference" "R18"
+		(property "Reference" "R9"
 			(at 186.69 77.47 90)
 			(effects
 				(font
@@ -4703,7 +4723,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R18")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -4718,7 +4738,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb25049")
-		(property "Reference" "R19"
+		(property "Reference" "R10"
 			(at 186.69 80.01 90)
 			(effects
 				(font
@@ -4771,7 +4791,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R19")
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -4786,7 +4806,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb250af")
-		(property "Reference" "R20"
+		(property "Reference" "R11"
 			(at 186.69 82.55 90)
 			(effects
 				(font
@@ -4839,7 +4859,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R20")
+					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -4854,7 +4874,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bb25229")
-		(property "Reference" "R21"
+		(property "Reference" "R12"
 			(at 186.69 85.09 90)
 			(effects
 				(font
@@ -4907,7 +4927,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R21")
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -4922,7 +4942,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "00000000-0000-0000-0000-00005bc04147")
-		(property "Reference" "JP1"
+		(property "Reference" "JP2"
 			(at 171.45 69.723 0)
 			(effects
 				(font
@@ -4975,7 +4995,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "JP1")
+					(reference "JP2")
 					(unit 1)
 				)
 			)
@@ -5418,7 +5438,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0e340d0e-01f6-4cda-be4f-878645439ab7")
-		(property "Reference" "R6"
+		(property "Reference" "R3"
 			(at 90.17 96.5199 0)
 			(effects
 				(font
@@ -5472,7 +5492,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R6")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -5488,7 +5508,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "105d3ca6-5edd-47ca-9772-17fc367ea750")
-		(property "Reference" "Cref"
+		(property "Reference" "Cref1"
 			(at 97.79 49.5299 0)
 			(effects
 				(font
@@ -5497,7 +5517,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "470n"
+		(property "Value" "470nF"
 			(at 97.79 52.0699 0)
 			(effects
 				(font
@@ -5542,7 +5562,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "Cref")
+					(reference "Cref1")
 					(unit 1)
 				)
 			)
@@ -5557,7 +5577,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "109f92b8-f8f4-4db4-bfc6-51b326e4c6c4")
-		(property "Reference" "#PWR08"
+		(property "Reference" "#PWR03"
 			(at 53.34 45.72 0)
 			(effects
 				(font
@@ -5607,7 +5627,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR08")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -5622,7 +5642,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "12d9e097-7b89-4b8a-a302-def6f208a63c")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR010"
 			(at 163.83 90.17 0)
 			(effects
 				(font
@@ -5672,7 +5692,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR09")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -5687,7 +5707,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1630074f-da1c-487d-9b25-421a00bf3e87")
-		(property "Reference" "R5"
+		(property "Reference" "R7"
 			(at 149.352 23.114 90)
 			(effects
 				(font
@@ -5739,7 +5759,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R5")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -5755,7 +5775,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1e6b2fd1-5d76-4f97-9292-5edd472dadee")
-		(property "Reference" "R7"
+		(property "Reference" "R2"
 			(at 90.17 82.5499 0)
 			(effects
 				(font
@@ -5809,7 +5829,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R7")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -5894,7 +5914,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "260965be-4187-4111-9f91-2acba7c4e926")
-		(property "Reference" "Lx"
+		(property "Reference" "Lx1"
 			(at 81.28 49.5299 0)
 			(effects
 				(font
@@ -5948,7 +5968,7 @@
 		(instances
 			(project ""
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "Lx")
+					(reference "Lx1")
 					(unit 1)
 				)
 			)
@@ -5973,7 +5993,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100n"
+		(property "Value" "100nF"
 			(at 115.57 64.7699 0)
 			(effects
 				(font
@@ -6034,7 +6054,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "36786b1d-6a24-4af1-957f-c7fe9211d395")
-		(property "Reference" "R2"
+		(property "Reference" "R4"
 			(at 114.3 53.3399 0)
 			(effects
 				(font
@@ -6088,7 +6108,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R2")
+					(reference "R4")
 					(unit 1)
 				)
 			)
@@ -6103,7 +6123,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "36a8b461-2a08-42b7-af33-60d4e4c56a48")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR06"
 			(at 87.63 80.01 0)
 			(effects
 				(font
@@ -6153,7 +6173,7 @@
 		(instances
 			(project ""
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR02")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -6169,7 +6189,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "53a4df41-1d18-4c2a-b280-e47693166ccc")
-		(property "Reference" "R4"
+		(property "Reference" "R6"
 			(at 134.62 31.75 90)
 			(effects
 				(font
@@ -6221,7 +6241,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R4")
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -6237,7 +6257,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "727625ed-ecc8-473f-afe9-e0d809fd8d09")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR05"
 			(at 77.47 113.03 0)
 			(effects
 				(font
@@ -6287,7 +6307,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR04")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -6303,7 +6323,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7573fc7a-4a8b-4c52-ae0f-15ab90e77cd0")
-		(property "Reference" "R3"
+		(property "Reference" "R5"
 			(at 121.92 41.91 90)
 			(effects
 				(font
@@ -6355,7 +6375,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "R3")
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -6475,7 +6495,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8dbbf1eb-e7bc-455e-9fe0-ef71a6304975")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR02"
 			(at 52.07 107.95 0)
 			(effects
 				(font
@@ -6525,7 +6545,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR06")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -6540,7 +6560,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "961af2ae-2cf3-4ad2-b932-3c822c9a42db")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR04"
 			(at 55.88 45.72 0)
 			(effects
 				(font
@@ -6590,7 +6610,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR05")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -6606,7 +6626,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9b260e64-2128-4f70-b9b0-4b964a785821")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR01"
 			(at 22.86 67.31 0)
 			(effects
 				(font
@@ -6656,7 +6676,7 @@
 		(instances
 			(project "nano-inductance-meter"
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR07")
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -6672,7 +6692,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b0c9bd74-315d-4fe6-abd8-f5fdddc32451")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR07"
 			(at 87.63 113.03 0)
 			(effects
 				(font
@@ -6722,7 +6742,7 @@
 		(instances
 			(project ""
 				(path "/d4d5a955-4390-4c0c-a531-39dbbfc584c9"
-					(reference "#PWR03")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
