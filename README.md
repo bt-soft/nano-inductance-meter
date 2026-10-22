@@ -5,7 +5,7 @@ A kapcsolási rajz: [schematic.png](./schematic.png).
 
 ## A mérés elve
 
-Az ismeretlen tekercs (Lx) egy ismert kondenzátorral (C) párhuzamos rezgőkört alkot. Ha a kört egy rövid impulzussal
+Az ismeretlen tekercs (Lx) egy ismert (pl.: arra alkalmas multiméterrel kimért) kondenzátorral (C) párhuzamos rezgőkört alkot. Ha a kört egy rövid impulzussal
 „megrúgjuk”, csillapodó szinuszos rezgés (lecsengés) indul, melynek frekvenciája:
 
 ```
@@ -73,7 +73,7 @@ avgT += 0.04 · (T − avgT)          (AVG_ALPHA)
 
 ## Mérési tartomány
 
-A számok a névleges `C = 465 nF` párhuzamos kondenzátorra vonatkoznak. Ez elméleti és becsült, nem mért tartomány:
+A számok a névleges `C = 465 nF` (multiméterrel kimért) párhuzamos kondenzátorra vonatkoznak. Ez elméleti és becsült, nem mért tartomány:
 a valós határokat a tekercs ohmos vesztesége (Q-ja), a komparátor és a huzalozás befolyásolja.
 
 **Gyakorlati tartomány: kb. 2 µH … 300 mH**, a rezgési frekvencia ekkor kb. 150 kHz … 400 Hz.
@@ -102,7 +102,7 @@ a valós határokat a tekercs ohmos vesztesége (Q-ja), a komparátor és a huza
   (időállandó `L/R`), ezért kevés energia kerül a körbe, és a lecsengés kicsi és gyorsan elhal.
   Kb. 100 mH fölött ezért a mérés fokozatosan bizonytalanabb, és a jel eltűnhet a komparátor küszöbe alatt.
 - **Csillapítás:** a tekercs soros ellenállása és a veszteségei miatt a rezgés néhány periódus alatt elhalhat.
-  Rossz Q-jú (például vasmagos, nagy ohmos) tekercsnél a 4 élet sem sikerül összegyűjteni.
+  Rossz Q-jú (például vasmagos, nagy ohmos) tekercsnél a 4 élt sem sikerül összegyűjteni.
 
 ### Induktivitás és mérési frekvencia (C = 465 nF)
 
