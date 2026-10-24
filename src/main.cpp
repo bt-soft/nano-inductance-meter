@@ -14,9 +14,9 @@
 // Lábkiosztás
 // ---------------------------------------------------------------------------
 // D9 = PB1: töltőimpulzus kimenet, D8 = ICP1: komparátor kimenet
-const uint8_t PIN_BTN = 2;      // kalibráló gomb (GND-re húz)
-const uint8_t PIN_ICP = 8;      // komparátor kimenet (Timer1 input capture)
-const uint8_t PULSE_BIT = PB1;  // D9 a PORTB/DDRB regiszterekben
+const uint8_t PIN_BTN = 2;     // kalibráló gomb (GND-re húz)
+const uint8_t PIN_ICP = 8;     // komparátor kimenet (Timer1 input capture)
+const uint8_t PULSE_BIT = PB1; // D9 a PORTB/DDRB regiszterekben
 
 // Nokia 5110: SCLK, DIN, D/C, CS, RST
 Adafruit_PCD8544 lcd(3, 4, 5, 6, 7);
@@ -34,13 +34,13 @@ const uint16_t EE_MAGIC = 0xC1A6; // a kalibrációs adat érvényességét jelz
 // ---------------------------------------------------------------------------
 // Mérési paraméterek
 // ---------------------------------------------------------------------------
-const double F_CPU_D = 16.0e6;           // CPU órajel (Hz), a Timer1 ennyivel számol
-const uint16_t PULSE_US = 300;           // töltőimpulzus hossza (µs)
-const uint8_t MAX_EDGES = 12;                    // ennyi felfutó élt gyűjtünk ciklusonként
-const uint8_t MIN_EDGES = 4;                     // ennyi él kell az érvényes mérési ciklushoz
-const unsigned long TIMEOUT_US = 10000;          // max. mérési idő ciklusonként (µs)
-const uint8_t MEASUREMENT_CYCLES = 5;            // ennyi ciklust átlagolunk egy méréshez
-const uint8_t MIN_VALID_CYCLES = 3;              // ennyi érvényes ciklus kell egy méréshez
+const double F_CPU_D = 16.0e6;          // CPU órajel (Hz), a Timer1 ennyivel számol
+const uint16_t PULSE_US = 300;          // töltőimpulzus hossza (µs)
+const uint8_t MAX_EDGES = 12;           // ennyi felfutó élt gyűjtünk ciklusonként
+const uint8_t MIN_EDGES = 4;            // ennyi él kell az érvényes mérési ciklushoz
+const unsigned long TIMEOUT_US = 10000; // max. mérési idő ciklusonként (µs)
+const uint8_t MEASUREMENT_CYCLES = 5;   // ennyi ciklust átlagolunk egy méréshez
+const uint8_t MIN_VALID_CYCLES = 3;     // ennyi érvényes ciklus kell egy méréshez
 
 // Az időközök max/min aránya ennél nagyobb nem lehet (MAX_JITTER_NUM/DEN = 5/4)
 const uint8_t MAX_JITTER_NUM = 5;
@@ -179,9 +179,7 @@ double measurePeriod() {
 /**
  * Induktivitás számítása a periódusidőből: L = T^2 / (4*pi^2*C)
  */
-double inductanceFromPeriod(double T, double C) {
-    return T * T / (4.0 * PI * PI * C);
-}
+double inductanceFromPeriod(double T, double C) { return T * T / (4.0 * PI * PI * C); }
 
 /**
  * Mozgóátlag a periódusidőre
@@ -332,12 +330,12 @@ void drawScreen(double T) {
  */
 void setup() {
     pinMode(PIN_BTN, INPUT_PULLUP);
-    pinMode(PIN_ICP, INPUT);       // komparátor jel fogadása
-    DDRB &= ~_BV(PULSE_BIT);       // D9 bemenet (Hi-Z)
-    PORTB &= ~_BV(PULSE_BIT);      // D9 pull-up letiltása
+    pinMode(PIN_ICP, INPUT);  // komparátor jel fogadása
+    DDRB &= ~_BV(PULSE_BIT);  // D9 bemenet (Hi-Z)
+    PORTB &= ~_BV(PULSE_BIT); // D9 pull-up letiltása
 
     lcd.begin();
-    lcd.setContrast(30);
+    lcd.setContrast(65);
     lcd.setTextSize(1);
     lcd.setTextColor(BLACK);
     lcd.setRotation(2); // LCD elforgatása 180 fokkal
